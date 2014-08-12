@@ -7,6 +7,18 @@ defmodule TacoSmith do
     |> Enum.map(&(TacoSmith.Content.create("./#{source}", &1)))
   end
 
+  def process(collection, filter=%Regex{}, fun)
+  when is_list(collection) and is_function(fun) do
+    {matches, rest} = Enum.partition(collection, &(String.match?(&1.info.path, filter)))
+    fun.(matches)
+    |> Enum.concat(rest)
+  end
+
+  def process_each(collection, filter=%Regex{}, fun)
+  when is_list(collection) and is_function(fun) do
+    process(collection, filter, fn(coll) -> Enum.map(coll, fun) |> Enum.filter(&(&1)) end)
+  end
+
   def clean(dest) do
     File.rm_rf "./#{dest}"
     File.mkdir "./#{dest}"

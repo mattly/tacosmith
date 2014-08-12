@@ -6,13 +6,15 @@ defmodule TacoSmithTest do
       File.rm_rf dir
       on_exit fn -> File.rm_rf dir end
     end
-    :ok
-  end
 
-  test "listing the source directory" do
-    records = TacoSmith.list "test/source"
     files = Path.wildcard("./test/source/**")
     |> Enum.filter(&File.regular?/1)
+    { :ok, files: files }
+  end
+
+  test "listing the source directory", context do
+    records = TacoSmith.list "test/source"
+    files = context[:files]
     |> Enum.map(&(String.replace(&1, "./test/source/", "")))
     assert length(records) == length(files)
     Enum.zip(files, records)
@@ -23,6 +25,26 @@ defmodule TacoSmithTest do
       assert File.stat!(filepath) == record.stat
       assert File.read!(filepath) == Enum.join(record.body)
     end)
+  end
+
+  test "process with a regex filter", context do
+    files = context[:files]
+    |> Enum.filter(&(! String.match?(&1, ~r|mix\.exs$|)))
+    records = TacoSmith.list("test/source")
+    |> TacoSmith.process(~r|mix\.exs$|, fn(_) -> [] end)
+    assert length(files) == length(records)
+    Enum.zip(files, records)
+    |> Enum.each(fn({path, record}) -> assert path == record.source end)
+  end
+
+  test "processing each with a regex filter", context do
+    files = context[:files]
+    |> Enum.filter(&(! String.match?(&1, ~r|mix\.exs$|)))
+    records = TacoSmith.list("test/source")
+    |> TacoSmith.process_each(~r|mix\.exs$|, fn(_) -> nil end)
+    assert length(files) == length(records)
+    Enum.zip(files, records)
+    |> Enum.each(fn({path, record}) -> assert path == record.source end)
   end
 
   @tag clean: "./test/dest"
