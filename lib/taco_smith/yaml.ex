@@ -1,5 +1,10 @@
 defmodule TacoSmith.YAML do
 
+  def frontmatter(collection) do
+    filter = ~r/\.(md|markdown)$/
+    TacoSmith.process_each(collection, filter, &process_frontmatter/1)
+  end
+
   def process_frontmatter(record = %TacoSmith.Content{}) do
     body = Enum.join(record.body)
     {front_matter, body} = extract_frontmatter(body)
