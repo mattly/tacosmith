@@ -34,5 +34,25 @@ A static site generator written in Elixir, inspired by [MetalSmith](http://www.m
 
     Thinking, he types `mix new tacosmith`.
 
-Still very much a work in progress.
+Still very much a work in progress, doesn't even really render yet.
+
+An example of how you might use it in its current form:
+
+`build.exs`:
+```elixir
+TacoSmith.list("source")
+|> TacoSmith.YAML.frontmatter
+|> TacoSmith.process_each(~r/\.(md|markdown)$/, fn(doc) ->
+  html = Enum.join(doc.body) |> Earmark.to_html
+  new_name = String.replace(doc.info.path, Path.extname(doc.info.path), ".html")
+  info = Dict.put(doc.info, :path, new_name)
+  %TacoSmith.Content{ doc | body: [html], info: info }
+  end)
+|> TacoSmith.process_each(~r/\.html$/, fn(doc) ->
+  layout = Dict.get(doc.info, :layout) || "index"
+  html = EEx.eval_file("templates/#{layout}.html.eex", [page: doc.info, content: Enum.join(doc.body)])
+  %TacoSmith.Content{ doc | body: [html] }
+  end)
+|> TacoSmith.write_all(%{dest: "build"})
+```
               
