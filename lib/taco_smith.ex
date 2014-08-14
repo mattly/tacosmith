@@ -17,7 +17,11 @@ defmodule TacoSmith do
 
   def process_each(collection, filter=%Regex{}, fun)
   when is_list(collection) and is_function(fun) do
-    process(collection, filter, fn(coll) -> map(coll, fun) |> filter(&(&1)) end)
+    process(collection, filter, fn(coll) ->
+      map(coll, fn(item) -> Task.async(fn -> fun.(item) end) end)
+      |> map(&Task.await/1)
+      |> filter(&(&1))
+    end)
   end
 
   def clean(dest) do
