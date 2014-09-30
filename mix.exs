@@ -26,7 +26,7 @@ defmodule TacoSmith.Mixfile do
   # Type `mix help deps` for more examples and options
   defp deps do
     [ { :yamerl, github: "yakaz/yamerl" },
-      { :earmark, "~> 0.1.9" }
+      { :earmark, github: "pragdave/earmark" }
     ]
   end
 end
