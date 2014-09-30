@@ -6,4 +6,6 @@ layout: layout
 
 # Taco
 
-** TODO: Add description **
+This is some text with a footnote[^example].  And more of it.
+
+[^example]: and this is the footnote.
