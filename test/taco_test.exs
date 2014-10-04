@@ -27,21 +27,21 @@ defmodule TacoSmithTest do
     end)
   end
 
-  test "process with a regex filter", context do
+  test "processing with a regex filter", context do
     files = context[:files]
     |> Enum.filter(&(! String.match?(&1, ~r|mix\.exs$|)))
     records = TacoSmith.list("test/source")
-    |> TacoSmith.process(~r|mix\.exs$|, fn(_) -> [] end)
+    |> TacoSmith.process(~r|mix\.exs$|, fn(_) -> nil end)
     assert length(files) == length(records)
     Enum.zip(files, records)
     |> Enum.each(fn({path, record}) -> assert path == record.source end)
   end
 
-  test "processing each with a regex filter", context do
+  test "processing with a function filter", context do
     files = context[:files]
-    |> Enum.filter(&(! String.match?(&1, ~r|mix\.exs$|)))
+    |> Enum.filter(&( ! String.match?(&1, ~r|mix\.exs$|) ))
     records = TacoSmith.list("test/source")
-    |> TacoSmith.process_each(~r|mix\.exs$|, fn(_) -> nil end)
+    |> TacoSmith.process(&( String.match?(&1.info.path, ~r|mix\.exs$|) ), fn(_) -> nil end)
     assert length(files) == length(records)
     Enum.zip(files, records)
     |> Enum.each(fn({path, record}) -> assert path == record.source end)
