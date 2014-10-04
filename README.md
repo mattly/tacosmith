@@ -1,6 +1,8 @@
 # TacoSmith
 
-A static site generator written in Elixir, inspired by [MetalSmith](http://www.metalsmith.io/).
+A static site generator written in Elixir, inspired by
+[MetalSmith](http://www.metalsmith.io/), which in turn is inspired by
+[WinterSmith](http://wintersmith.io).
 
     INT. LOFT APARTMENT, EVENING
 
@@ -39,15 +41,15 @@ Still very much a work in progress, doesn't even really render yet.
 An example of how you might use it in its current form:
 
 `build.exs`:
-```elixir
+``` elixir
 TacoSmith.list("source")
 |> TacoSmith.YAML.frontmatter
-|> TacoSmith.markdown
+|> TacoSmith.Markdown.render
 |> TacoSmith.process_each(~r/\.html$/, fn(doc) ->
-  layout = Dict.get(doc.info, :layout) || "index"
-  html = EEx.eval_file("templates/#{layout}.html.eex", [page: doc.info, content: Enum.join(doc.body)])
-  %TacoSmith.Content{ doc | body: [html] }
-  end)
+     layout = Dict.get(doc.info, :layout) || "index"
+     html = EEx.eval_file("templates/#{layout}.html.eex", [page: doc.info, content: Enum.join(doc.body)])
+     %TacoSmith.Content{ doc | body: [html] }
+   end)
 |> TacoSmith.write_all(%{dest: "build"})
 ```
               
