@@ -5,11 +5,11 @@ defmodule YamlTest do
     record = TacoSmith.Content.create("test/source", "README.md")
     |> TacoSmith.YAML.process_frontmatter
     assert record.info.title == "Read Me"
-    assert record.info.layout == "layout"
+    assert record.info.layout == "default.html"
     assert record.info.published == true
     body = Enum.join(record.body)
     refute String.match?(body, ~r|---|)
-    refute String.match?(body, ~r|layout|)
+    refute String.match?(body, ~r|default|)
   end
 
   test "processes frontmatter from collection" do
@@ -18,7 +18,7 @@ defmodule YamlTest do
     readme = Enum.find(docs, &(&1.info.path == "README.md"))
     assert readme
     assert readme.info.title == "Read Me"
-    assert readme.info.layout == "layout"
+    assert readme.info.layout == "default.html"
   end
 
   test "processes sidecar files" do
@@ -27,7 +27,7 @@ defmodule YamlTest do
     another = Enum.find(docs, &(&1.info.path == "another.md"))
     assert another
     assert another.info.title == "Another"
-    assert another.info.layout == "layout"
+    assert another.info.layout == "default.html"
     refute another.info.published
   end
 

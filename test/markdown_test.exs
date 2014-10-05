@@ -8,7 +8,7 @@ defmodule MarkdownTest do
     readme = Enum.find(docs, &(&1.info.path == "README.html"))
     assert readme
     body = Enum.join(readme.body)
-    assert String.match?(body, ~r|<h1>|)
+    assert String.match?(body, ~r|<h1>Taco</h1>|)
     assert String.match?(body, ~r|class="footnotes"|)
   end
 

@@ -43,13 +43,9 @@ An example of how you might use it in its current form:
 `build.exs`:
 ``` elixir
 TacoSmith.list("source")
-|> TacoSmith.YAML.frontmatter
-|> TacoSmith.Markdown.render
-|> TacoSmith.process_each(~r/\.html$/, fn(doc) ->
-     layout = Dict.get(doc.info, :layout) || "index"
-     html = EEx.eval_file("templates/#{layout}.html.eex", [page: doc.info, content: Enum.join(doc.body)])
-     %TacoSmith.Content{ doc | body: [html] }
-   end)
+|> TacoSmith.YAML.frontmatter   # Extracts YAML metadata from Markdown files
+|> TacoSmith.Markdown.render    # Renders Markdown to HTML, changes file name
+|> TacoSmith.EEx.render         # Renders from {layout}.html.eex templates in "templates" dir
 |> TacoSmith.write_all(%{dest: "build"})
 ```
               

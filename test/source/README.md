@@ -1,7 +1,7 @@
 ---
 title: Read Me
 published: true
-layout: layout
+layout: default.html
 ---
 
 # Taco
