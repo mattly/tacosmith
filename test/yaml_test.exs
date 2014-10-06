@@ -13,18 +13,18 @@ defmodule YamlTest do
   end
 
   test "processes frontmatter from collection" do
-    docs = TacoSmith.list("test/source")
+    site = TacoSmith.read("test/source")
     |> TacoSmith.YAML.frontmatter
-    readme = Enum.find(docs, &(&1.info.path == "README.md"))
+    readme = Enum.find(site.files, &(&1.info.path == "README.md"))
     assert readme
     assert readme.info.title == "Read Me"
     assert readme.info.layout == "default.html"
   end
 
   test "processes sidecar files" do
-    docs = TacoSmith.list("test/source")
+    site = TacoSmith.read("test/source")
     |> TacoSmith.YAML.sidecar
-    another = Enum.find(docs, &(&1.info.path == "another.md"))
+    another = Enum.find(site.files, &(&1.info.path == "another.md"))
     assert another
     assert another.info.title == "Another"
     assert another.info.layout == "default.html"

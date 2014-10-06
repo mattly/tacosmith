@@ -2,17 +2,20 @@ defmodule TacoSmith.YAML do
 
   @yaml_file_re ~r/\.(yaml|yml)$/
 
-  def frontmatter(collection) do
+  alias TacoSmith.Site
+  alias TacoSmith.Content
+
+  def frontmatter(site = %Site{}) do
     filter = ~r/\.(md|markdown)$/
-    TacoSmith.process(collection, filter, &process_frontmatter/1)
+    TacoSmith.process(site, filter, &process_frontmatter/1)
   end
 
-  def process_frontmatter(record = %TacoSmith.Content{}) do
+  def process_frontmatter(record = %Content{}) do
     body = Enum.join(record.body)
     {front_matter, body} = extract_frontmatter(body)
     if front_matter do
       yaml = yaml_to_dict(front_matter)
-      %TacoSmith.Content{ record | body: [body], info: Dict.merge(record.info, yaml) }
+      %Content{ record | body: [body], info: Dict.merge(record.info, yaml) }
     else
       record
     end
@@ -27,18 +30,18 @@ defmodule TacoSmith.YAML do
     end
   end
 
-  def sidecar(collection) do
-    yaml_files = collection
+  def sidecar(site = %Site{}) do
+    yaml_files = site.files
               |> Enum.filter(&(String.match?(&1.info.path, @yaml_file_re)))
               |> Enum.map(&(String.replace(&1.info.path, @yaml_file_re, "")))
-    {target_files, rest} = Enum.partition(collection, &(Enum.member?(yaml_files, &1.info.path)))
+    {target_files, rest} = Enum.partition(site.files, &(Enum.member?(yaml_files, &1.info.path)))
     target_and_yaml_files = Enum.map(target_files, fn(record) ->
       yaml_file = Enum.find(rest, &(String.match?(&1.info.path, ~r/^#{record.info.path}\.(yaml|yml)$/)))
       yaml = yaml_file.body |> Enum.join |> yaml_to_dict
-      {%TacoSmith.Content{ record | info: Dict.merge(record.info, yaml) }, yaml_file}
+      {%Content{ record | info: Dict.merge(record.info, yaml) }, yaml_file}
     end)
     target_files = Enum.map(target_and_yaml_files, &(elem(&1, 0)))
-    Enum.concat(target_files, rest)
+    %Site{ site | files: Enum.concat(target_files, rest) }
   end
 
   defp yaml_to_dict(string) do

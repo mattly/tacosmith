@@ -11,11 +11,11 @@ defmodule EExTest do
   end
 
   test "renders a collection with a filter on layout key" do
-    docs = TacoSmith.list("test/source")
+    site = TacoSmith.read("test/source")
     |> TacoSmith.YAML.frontmatter
     |> TacoSmith.Markdown.render
     |> TacoSmith.EEx.render(%{template_directory: "test/templates"})
-    readme = Enum.find(docs, &(&1.info.path == "README.html"))
+    readme = Enum.find(site.files, &(&1.info.path == "README.html"))
     assert readme
     body = Enum.join(readme.body)
     assert String.match?(body, ~r|<article>|)

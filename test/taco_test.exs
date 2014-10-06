@@ -13,50 +13,50 @@ defmodule TacoSmithTest do
   end
 
   test "listing the source directory", context do
-    records = TacoSmith.list "test/source"
+    site = TacoSmith.read "test/source"
     files = context[:files]
-    |> Enum.map(&(String.replace(&1, "./test/source/", "")))
-    assert length(records) == length(files)
-    Enum.zip(files, records)
-    |> Enum.each(fn({path, record}) ->
-      assert "./test/source/#{path}" == record.source
-      assert path == record.info.path
+          |> Enum.map(&(String.replace(&1, "./test/source/", "")))
+    assert length(site.files) == length(files)
+    Enum.zip(files, site.files)
+    |> Enum.each(fn({path, doc}) ->
+      assert "./test/source/#{path}" == doc.source
+      assert path == doc.info.path
       filepath = "./test/source/#{path}"
-      assert File.stat!(filepath) == record.stat
-      assert File.read!(filepath) == Enum.join(record.body)
+      assert File.stat!(filepath) == doc.stat
+      assert File.read!(filepath) == Enum.join(doc.body)
     end)
   end
 
   test "processing with a regex filter", context do
     files = context[:files]
     |> Enum.filter(&(! String.match?(&1, ~r|mix\.exs$|)))
-    records = TacoSmith.list("test/source")
+    site = TacoSmith.read("test/source")
     |> TacoSmith.process(~r|mix\.exs$|, fn(_) -> nil end)
-    assert length(files) == length(records)
-    Enum.zip(files, records)
-    |> Enum.each(fn({path, record}) -> assert path == record.source end)
+    assert length(files) == length(site.files)
+    Enum.zip(files, site.files)
+    |> Enum.each(fn({path, doc}) -> assert path == doc.source end)
   end
 
   test "processing with a function filter", context do
     files = context[:files]
     |> Enum.filter(&( ! String.match?(&1, ~r|mix\.exs$|) ))
-    records = TacoSmith.list("test/source")
+    site = TacoSmith.read("test/source")
     |> TacoSmith.process(&( String.match?(&1.info.path, ~r|mix\.exs$|) ), fn(_) -> nil end)
-    assert length(files) == length(records)
-    Enum.zip(files, records)
-    |> Enum.each(fn({path, record}) -> assert path == record.source end)
+    assert length(files) == length(site.files)
+    Enum.zip(files, site.files)
+    |> Enum.each(fn({path, doc}) -> assert path == doc.source end)
   end
 
   @tag clean: "./test/dest"
   test "saving the collection" do
     dest = "test/dest"
     assert ! File.exists?(dest)
-    records = TacoSmith.list("test/source")
-    :ok = TacoSmith.write_all(records, %{dest: dest})
+    site = TacoSmith.read("test/source")
+    :ok = TacoSmith.write(site, %{dest: dest})
     assert File.exists?(dest)
     assert File.dir?(dest)
-    Enum.each(records, fn(record) ->
-      assert File.exists?(Path.join(dest, record.info.path))
+    Enum.each(site.files, fn(doc) ->
+      assert File.exists?(Path.join(dest, doc.info.path))
     end)
   end
 

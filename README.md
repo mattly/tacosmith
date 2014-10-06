@@ -36,16 +36,17 @@ A static site generator written in Elixir, inspired by
 
     Thinking, he types `mix new tacosmith`.
 
-Still very much a work in progress, doesn't even really render yet.
+Still very much a work in progress, it will render markdown to html, but
+the templating is still coming together and there aren't "collections"
+yet.
 
 An example of how you might use it in its current form:
 
 `build.exs`:
 ``` elixir
-TacoSmith.list("source")
+TacoSmith.read("source")
 |> TacoSmith.YAML.frontmatter   # Extracts YAML metadata from Markdown files
 |> TacoSmith.Markdown.render    # Renders Markdown to HTML, changes file name
 |> TacoSmith.EEx.render         # Renders from {layout}.html.eex templates in "templates" dir
-|> TacoSmith.write_all(%{dest: "build"})
+|> TacoSmith.write(%{dest: "build"})
 ```
-              
