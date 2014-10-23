@@ -3,7 +3,7 @@ defmodule EExTest do
 
   test "renders record with default variable positions" do
     record = %TacoSmith.Content{ info: %{ title: "Document" }, body: ["Content goes here"] }
-    |> TacoSmith.EEx.render_document(%{template_directory: "test/templates"})
+    |> TacoSmith.EEx.render_document(%TacoSmith.Site{}, %{template_directory: "test/templates"})
     body = Enum.join(record.body)
     assert String.match?(body, ~r|<article>|)
     assert String.match?(body, ~r|<h1>#{record.info.title}|)
