@@ -1,6 +1,6 @@
 defmodule TacoSmith do
 
-  defmodule Site, do: defstruct files: [], info: %{}, source: ""
+  defmodule Site, do: defstruct files: [], info: %{}, source: "", collections: %{}
 
   defp pmap(coll, fun) do
     Enum.map(coll, fn(item) -> Task.async(fn -> fun.(item) end) end)
