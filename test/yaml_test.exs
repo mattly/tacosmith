@@ -31,4 +31,12 @@ defmodule YamlTest do
     refute another.info.published
   end
 
+  test "converts dates from frontmatter" do
+    site = TacoSmith.read("test/source")
+    |> TacoSmith.YAML.frontmatter
+    doc = Enum.find(site.files, &(&1.info.path == "articles/a_second.md"))
+    assert doc
+    assert doc.info.date == Timex.Date.from({2014, 11, 3})
+  end
+
 end

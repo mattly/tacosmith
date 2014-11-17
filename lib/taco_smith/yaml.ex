@@ -45,7 +45,11 @@ defmodule TacoSmith.YAML do
   end
 
   defp yaml_to_dict(string) do
-    :yamerl_constr.string(string) |> hd |> yamerl_to_dict
+    dict = :yamerl_constr.string(string) |> hd |> yamerl_to_dict
+    if Dict.has_key?(dict, :date) do
+      dict = Dict.put(dict, :date, TacoSmith.Utils.date(dict.date))
+    end
+    dict
   end
 
   defp yamerl_to_dict(yamerl), do: yamerl_to_dict(%{}, yamerl)
