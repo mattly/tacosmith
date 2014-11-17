@@ -15,6 +15,13 @@ defmodule TacoSmith.Collection do
     define site, name, filter, sort, false
   end
 
+  def define(site=%Site{}, name, filter, sort)
+  when is_atom(name)
+  and is_function(filter)
+  and is_function(sort) do
+    define site, name, filter, sort, false
+  end
+
   def define(site=%Site{}, name, filter=%Regex{}, sort, reverse)
   when is_atom(name)
   and is_function(sort)
