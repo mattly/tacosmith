@@ -10,8 +10,16 @@ defmodule CollectionTest do
   end
 
   test "collections sort by provided function" do
+    published = &( String.match?(&1.info.path, ~r{^articles/.+\.md$}) )
+    sort = &(Timex.Date.to_secs(&1.info.date))
     site = TacoSmith.read("test/source")
-    # |> TacoSmith.Collection.define :articles, &( &1.info.published && String.match?(&1.info.path, ~r{^/articles/.+\.md$}) )
+    |> TacoSmith.YAML.frontmatter       # parse the date strings from frontmatter
+    |> TacoSmith.Collection.define :articles, published, sort, true
+    assert site.collections.articles
+    articles = TacoSmith.Collection.manifest(site, :articles)
+
+    paths = ["articles/third.md", "articles/a_second.md", "articles/the_first.md"]
+    assert paths == Enum.map(articles, &(&1.info.path))
   end
 
 end
